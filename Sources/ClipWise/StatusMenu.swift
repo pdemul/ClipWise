@@ -46,7 +46,7 @@ final class StatusMenu: NSObject, NSMenuDelegate {
             clear.toolTip = "History is already empty"
         }
         menu.addItem(clear)
-        menu.addItem(NSMenuItem(title: "Quit ClipHistory", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit ClipWise", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
     }
 
     @objc private func pick(_ sender: NSMenuItem) {

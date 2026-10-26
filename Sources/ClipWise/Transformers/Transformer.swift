@@ -36,7 +36,7 @@ final class TransformerRegistry {
         all = Self.discover().map { $0.init() }
             .sorted { type(of: $0).title.localizedCaseInsensitiveCompare(type(of: $1).title) == .orderedAscending }
         disabled = Set(UserDefaults.standard.stringArray(forKey: "disabledTransformers") ?? [])
-        NSLog("ClipHistory: transformers found: \(all.map { "\(type(of: $0).title)\(isEnabled($0) ? "" : " (off)")" }.joined(separator: ", "))")
+        NSLog("ClipWise: transformers found: \(all.map { "\(type(of: $0).title)\(isEnabled($0) ? "" : " (off)")" }.joined(separator: ", "))")
     }
 
     static func id(_ t: Transformer) -> String { NSStringFromClass(type(of: t)) }

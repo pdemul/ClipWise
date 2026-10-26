@@ -2,9 +2,9 @@
 import PackageDescription
 
 let package = Package(
-    name: "ClipHistory",
+    name: "ClipWise",
     platforms: [.macOS(.v14)],
     targets: [
-        .executableTarget(name: "ClipHistory", path: "Sources/ClipHistory")
+        .executableTarget(name: "ClipWise", path: "Sources/ClipWise")
     ]
 )

@@ -61,15 +61,15 @@ private actor RateCache {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard (response as? HTTPURLResponse)?.statusCode == 200 else {
                 // An unknown currency code lands here (404), as does an outage.
-                NSLog("ClipHistory: no rates for \(from) (HTTP \((response as? HTTPURLResponse)?.statusCode ?? 0))")
+                NSLog("ClipWise: no rates for \(from) (HTTP \((response as? HTTPURLResponse)?.statusCode ?? 0))")
                 return nil
             }
             let rates = try JSONDecoder().decode(Response.self, from: data).rates
             tables[from] = (Date(), rates)
-            if rates[to] == nil { NSLog("ClipHistory: no \(from)→\(to) rate available") }
+            if rates[to] == nil { NSLog("ClipWise: no \(from)→\(to) rate available") }
             return rates[to]
         } catch {
-            NSLog("ClipHistory: rate lookup \(from)→\(to) failed: \(error.localizedDescription)")
+            NSLog("ClipWise: rate lookup \(from)→\(to) failed: \(error.localizedDescription)")
             return nil
         }
     }

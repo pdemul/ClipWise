@@ -39,7 +39,7 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
     private func makeWindow() -> NSWindow {
         let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 400, height: 160),
                          styleMask: [.titled, .closable], backing: .buffered, defer: false)
-        w.title = "ClipHistory Settings"
+        w.title = "ClipWise Settings"
         w.isReleasedWhenClosed = false
         w.delegate = self
 
@@ -201,7 +201,7 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
         let registry = TransformerRegistry.shared
         guard let t = registry.all.first(where: { TransformerRegistry.id($0) == sender.identifier?.rawValue }) else { return }
         registry.setEnabled(t, sender.state == .on)
-        NSLog("ClipHistory: transformer \(type(of: t).title) \(sender.state == .on ? "on" : "off")")
+        NSLog("ClipWise: transformer \(type(of: t).title) \(sender.state == .on ? "on" : "off")")
     }
 
     private static func separator() -> NSBox {
@@ -220,10 +220,10 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
                 try service.unregister()
             }
             loginHint.stringValue = ""
-            NSLog("ClipHistory: open at login \(loginCheckbox.state == .on ? "enabled" : "disabled"), status \(service.status.rawValue)")
+            NSLog("ClipWise: open at login \(loginCheckbox.state == .on ? "enabled" : "disabled"), status \(service.status.rawValue)")
         } catch {
             loginHint.stringValue = "Couldn't change this: \(error.localizedDescription)"
-            NSLog("ClipHistory: open-at-login change failed: \(error)")
+            NSLog("ClipWise: open-at-login change failed: \(error)")
         }
         refresh()
     }
@@ -248,7 +248,7 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
         let needsApproval = status == .requiresApproval
         loginItemsButton.isHidden = !needsApproval
         if needsApproval {
-            loginHint.stringValue = "Approve ClipHistory in System Settings → General → Login Items."
+            loginHint.stringValue = "Approve ClipWise in System Settings → General → Login Items."
         }
         loginHint.isHidden = loginHint.stringValue.isEmpty
         let recording = keyMonitor != nil

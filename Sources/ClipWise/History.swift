@@ -16,7 +16,7 @@ final class History {
 
     init() {
         let dir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("ClipHistory", isDirectory: true)
+            .appendingPathComponent("ClipWise", isDirectory: true)
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
         fileURL = dir.appendingPathComponent("history.json")
         load()
@@ -59,7 +59,7 @@ final class History {
             }
             entries = Array(entries.prefix(maxItems))
         } catch {
-            NSLog("ClipHistory: could not read \(fileURL.path), starting empty: \(error)")
+            NSLog("ClipWise: could not read \(fileURL.path), starting empty: \(error)")
         }
     }
 
@@ -67,7 +67,7 @@ final class History {
         do {
             try JSONEncoder().encode(entries).write(to: fileURL, options: .atomic)
         } catch {
-            NSLog("ClipHistory: could not save history: \(error)")
+            NSLog("ClipWise: could not save history: \(error)")
         }
     }
 }

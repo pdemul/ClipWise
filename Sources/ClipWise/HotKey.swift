@@ -58,7 +58,7 @@ final class GlobalHotKey {
             MainActor.assumeIsolated { me.action() }  // Carbon delivers on the main thread
             return noErr
         }, 1, &spec, Unmanaged.passUnretained(self).toOpaque(), &handler)
-        if status != noErr { NSLog("ClipHistory: could not install hotkey handler (\(status))") }
+        if status != noErr { NSLog("ClipWise: could not install hotkey handler (\(status))") }
     }
 
     @discardableResult
@@ -67,11 +67,11 @@ final class GlobalHotKey {
         let id = EventHotKeyID(signature: OSType(0x434C_4950), id: 1)  // 'CLIP'
         let status = RegisterEventHotKey(combo.keyCode, combo.carbonModifiers, id, GetApplicationEventTarget(), 0, &ref)
         if status != noErr {
-            NSLog("ClipHistory: could not register hotkey \(combo.label) (\(status))")
+            NSLog("ClipWise: could not register hotkey \(combo.label) (\(status))")
             ref = nil
             return false
         }
-        NSLog("ClipHistory: hotkey \(combo.label) registered")
+        NSLog("ClipWise: hotkey \(combo.label) registered")
         return true
     }
 

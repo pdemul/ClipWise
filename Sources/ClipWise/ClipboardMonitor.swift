@@ -50,7 +50,7 @@ final class ClipboardMonitor {
             guard let result = await applyTransformers(trimmed) else { return }
             // A lookup can take a moment; never overwrite something copied in the meantime.
             guard pasteboard.changeCount == count else {
-                NSLog("ClipHistory: dropped transform result for \"\(trimmed.prefix(40))\", clipboard changed meanwhile")
+                NSLog("ClipWise: dropped transform result for \"\(trimmed.prefix(40))\", clipboard changed meanwhile")
                 return
             }
             write(result)
