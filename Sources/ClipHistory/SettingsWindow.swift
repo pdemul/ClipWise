@@ -10,6 +10,7 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
     private let sizeField = NSTextField()
     private let sizeStepper = NSStepper()
     private static let sizeRange = 5...200
+    private static let columnWidth: CGFloat = 400  // both columns of the window
     private let loginCheckbox = NSButton(checkboxWithTitle: "Open at login", target: nil, action: nil)
     private let loginHint = NSTextField(wrappingLabelWithString: "")
     private let loginItemsButton = NSButton(title: "Open Login Items", target: nil, action: nil)
@@ -50,7 +51,7 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
         resetButton.action = #selector(reset)
         hint.textColor = .secondaryLabelColor
         hint.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
-        hint.preferredMaxLayoutWidth = 360
+        hint.preferredMaxLayoutWidth = Self.columnWidth - 40
 
         let formatter = NumberFormatter()
         formatter.minimum = NSNumber(value: Self.sizeRange.lowerBound)
@@ -78,7 +79,7 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
         loginItemsButton.action = #selector(openLoginItems)
         loginHint.textColor = .secondaryLabelColor
         loginHint.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
-        loginHint.preferredMaxLayoutWidth = 360
+        loginHint.preferredMaxLayoutWidth = Self.columnWidth - 40
 
         let stack = NSStackView(views: [row, hint, resetButton, Self.separator(), sizeRow, Self.separator(),
                                         loginCheckbox, loginHint, loginItemsButton])
@@ -94,9 +95,12 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
         content.orientation = .horizontal
         content.alignment = .top
         content.spacing = 0
-        pane.heightAnchor.constraint(equalTo: stack.heightAnchor).isActive = true
-        divider.heightAnchor.constraint(equalTo: stack.heightAnchor, constant: -40).isActive = true
-        divider.centerYAnchor.constraint(equalTo: stack.centerYAnchor).isActive = true
+        stack.widthAnchor.constraint(equalToConstant: Self.columnWidth).isActive = true
+        pane.widthAnchor.constraint(equalToConstant: Self.columnWidth).isActive = true
+        pane.heightAnchor.constraint(equalTo: content.heightAnchor).isActive = true
+        stack.heightAnchor.constraint(lessThanOrEqualTo: content.heightAnchor).isActive = true
+        divider.heightAnchor.constraint(equalTo: content.heightAnchor, constant: -40).isActive = true
+        divider.centerYAnchor.constraint(equalTo: content.centerYAnchor).isActive = true
         w.contentView = content
         w.center()
         return w
@@ -109,14 +113,21 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
         let intro = NSTextField(wrappingLabelWithString: "Applied to each copy. A result goes on top of the copy and onto the clipboard.")
         intro.textColor = .secondaryLabelColor
         intro.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
-        intro.preferredMaxLayoutWidth = 280
+        intro.preferredMaxLayoutWidth = Self.columnWidth - 40
 
         let registry = TransformerRegistry.shared
         let list = NSStackView()
         list.orientation = .vertical
         list.alignment = .leading
-        list.spacing = 14
+        list.spacing = 10
+        list.edgeInsets = NSEdgeInsets(top: 10, left: 10, bottom: 10, right: 10)
         for t in registry.all {
+            if t !== registry.all.first {
+                let line = NSBox()
+                line.boxType = .separator
+                list.addArrangedSubview(line)
+                line.widthAnchor.constraint(equalTo: list.widthAnchor, constant: -20).isActive = true
+            }
             let check = NSButton(checkboxWithTitle: type(of: t).title, target: self, action: #selector(transformerToggled(_:)))
             check.state = registry.isEnabled(t) ? .on : .off
             check.identifier = NSUserInterfaceItemIdentifier(TransformerRegistry.id(t))
@@ -126,7 +137,7 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
             summary.maximumNumberOfLines = 2
             summary.lineBreakMode = .byWordWrapping
             summary.cell?.truncatesLastVisibleLine = true
-            summary.preferredMaxLayoutWidth = 258
+            summary.preferredMaxLayoutWidth = Self.columnWidth - 84  // minus margins, list padding, indent, border
             summary.toolTip = type(of: t).summary
             let indented = NSStackView(views: [summary])
             indented.edgeInsets = NSEdgeInsets(top: 0, left: 20, bottom: 0, right: 0)
@@ -154,22 +165,35 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
         let scroll = NSScrollView()
         scroll.hasVerticalScroller = true
         scroll.autohidesScrollers = true
-        scroll.drawsBackground = false
+        // A white list box (dark in Dark Mode), like the lists in System Settings.
+        scroll.drawsBackground = true
+        scroll.backgroundColor = .controlBackgroundColor
+        scroll.borderType = .lineBorder
         scroll.documentView = doc
         NSLayoutConstraint.activate([
             doc.topAnchor.constraint(equalTo: scroll.contentView.topAnchor),
             doc.leadingAnchor.constraint(equalTo: scroll.contentView.leadingAnchor),
             doc.widthAnchor.constraint(equalTo: scroll.contentView.widthAnchor),
-            scroll.widthAnchor.constraint(equalToConstant: 290),
         ])
 
-        scroll.setContentHuggingPriority(.init(1), for: .vertical)  // the list takes the spare height
-        let pane = NSStackView(views: [header, intro, scroll])
-        pane.distribution = .fill
-        pane.orientation = .vertical
-        pane.alignment = .leading
-        pane.spacing = 8
-        pane.edgeInsets = NSEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
+        // Explicit constraints: the list box fills the pane below the intro, inside 20pt margins.
+        let pane = NSView()
+        for v in [header, intro, scroll] {
+            v.translatesAutoresizingMaskIntoConstraints = false
+            pane.addSubview(v)
+        }
+        NSLayoutConstraint.activate([
+            header.topAnchor.constraint(equalTo: pane.topAnchor, constant: 20),
+            header.leadingAnchor.constraint(equalTo: pane.leadingAnchor, constant: 20),
+            intro.topAnchor.constraint(equalTo: header.bottomAnchor, constant: 8),
+            intro.leadingAnchor.constraint(equalTo: scroll.leadingAnchor),
+            intro.trailingAnchor.constraint(equalTo: scroll.trailingAnchor),
+            scroll.topAnchor.constraint(equalTo: intro.bottomAnchor, constant: 10),
+            scroll.leadingAnchor.constraint(equalTo: pane.leadingAnchor, constant: 20),
+            scroll.trailingAnchor.constraint(equalTo: pane.trailingAnchor, constant: -20),
+            scroll.bottomAnchor.constraint(equalTo: pane.bottomAnchor, constant: -20),
+            scroll.heightAnchor.constraint(greaterThanOrEqualToConstant: 180),
+        ])
         return pane
     }
 
@@ -183,7 +207,7 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
     private static func separator() -> NSBox {
         let box = NSBox()
         box.boxType = .separator
-        box.widthAnchor.constraint(equalToConstant: 360).isActive = true
+        box.widthAnchor.constraint(equalToConstant: columnWidth - 40).isActive = true
         return box
     }
 
