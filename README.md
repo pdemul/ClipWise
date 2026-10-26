@@ -24,7 +24,7 @@ When a copy matches a transform, the copy is kept and the result is added on top
 All transforms live in [`Sources/ClipWise/Transformers/`](Sources/ClipWise/Transformers/), one per file:
 
 - **Math** (`MathTransformer.swift`): `4127*123` → `507,621`. Supports `+ - * / × ÷ ^`, parentheses, decimals and a trailing `=`. Sums that only use `-` or `/` need a space or bracket (`10 / 4`), so dates like `2026-10-26` and `10/26` and phone numbers are left alone.
-- **Currency** (`CurrencyTransformer.swift`): `1.23 GBP in USD` → `1.64 USD`. Also `to`/`as`/`into`/`=`, lowercase codes, and `£ $ € ¥` (`£50 to eur`). Uses the day's European Central Bank rates from [frankfurter.dev](https://frankfurter.dev) (free, no key, about 30 major currencies), cached for an hour. Unknown currencies or no network: the copy is left as it is.
+- **Currency** (`CurrencyTransformer.swift`): `1.23 GBP in USD` → `1.64 USD`. Currencies can be codes, symbols or names (`£50 to eur`, `100 Swedish to GBP=`, `50 swiss francs into euros`), joined by `in`/`to`/`as`/`into`/`=`, with an optional trailing `=` or `?`. When one side is an exact code, the other may be loose: abbreviated (`swe`), misspelt (`sweedish`) or wordy (`Swedish Krone`); with no code on either side, both names must be exact, so ordinary sentences aren't converted. Uses the day's European Central Bank rates from [frankfurter.dev](https://frankfurter.dev) (free, no key, about 30 major currencies), cached for an hour. Unknown currencies or no network: the copy is left as it is.
 
 ### Adding a transform
 
