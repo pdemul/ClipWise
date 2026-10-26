@@ -1,6 +1,16 @@
 # ClipWise
 
-A tiny macOS menubar app that keeps your recent text copies (20 by default). Press ⌃⌥V from any app, or click the menubar icon, to open the history; click an entry or press ⌘1–⌘9 to put it back on the clipboard.
+A tiny macOS menubar app that keeps your recent text copies (20 by default). Press ⌃⌥V from any app, or click the menubar icon, to open the history; click an entry or press ⌘1–⌘9 to put it back on the clipboard. Copy a sum or a currency amount (`4127*123`, `100 Swedish to GBP=`) and the answer is added on top, ready to paste.
+
+## Install
+
+Needs macOS 14 or later, Apple Silicon or Intel.
+
+1. Download `ClipWise-<version>.zip` from the [latest release](https://github.com/pdemul/ClipWise/releases/latest) and unzip it.
+2. Move `ClipWise.app` to your Applications folder and open it.
+3. The app isn't notarised by Apple yet, so macOS blocks it the first time. Open **System Settings → Privacy & Security**, scroll down to the message about ClipWise, and click **Open Anyway**. You only need to do this once.
+
+A clipboard icon appears in the menubar. To start it at login, tick **Open at login** in Settings….
 
 - Newest first. Copying the same text again moves it to the top.
 - Leading and trailing spaces and newlines are trimmed.
@@ -13,9 +23,10 @@ A tiny macOS menubar app that keeps your recent text copies (20 by default). Pre
 ```bash
 ./build.sh                       # builds and installs ~/Applications/ClipWise.app
 open ~/Applications/ClipWise.app
+./build.sh --release             # universal build, zipped as build/ClipWise-<version>.zip
 ```
 
-To start it at login, tick **Open at login** in Settings….
+The version number is `VERSION` at the top of `build.sh`.
 
 ## Transforms
 
