@@ -28,10 +28,10 @@ final class StatusMenu: NSObject, NSMenuDelegate {
 
         for (i, entry) in history.entries.enumerated() {
             let key = i < 9 ? String(i + 1) : ""
-            let item = NSMenuItem(title: Self.label(entry.value), action: #selector(pick(_:)), keyEquivalent: key)
+            let item = NSMenuItem(title: Self.label(entry.original), action: #selector(pick(_:)), keyEquivalent: key)
             item.target = self
             item.tag = i
-            item.toolTip = entry.result == nil ? entry.original : "\(entry.result!)\n\nfrom: \(entry.original)"
+            item.toolTip = entry.original
             menu.addItem(item)
         }
 
@@ -51,7 +51,7 @@ final class StatusMenu: NSObject, NSMenuDelegate {
 
     @objc private func pick(_ sender: NSMenuItem) {
         guard history.entries.indices.contains(sender.tag) else { return }
-        let text = history.entries[sender.tag].value
+        let text = history.entries[sender.tag].original
         monitor.write(text)
         history.add(text)
     }

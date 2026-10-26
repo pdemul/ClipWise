@@ -2,10 +2,6 @@ import Foundation
 
 struct ClipEntry: Codable, Equatable {
     var original: String
-    var result: String?
-
-    /// What gets shown and copied back: the transform result if there is one.
-    var value: String { result ?? original }
 }
 
 @MainActor
@@ -32,7 +28,7 @@ final class History {
         let text = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !text.isEmpty else { return }
         entries.removeAll { $0.original == text }
-        entries.insert(ClipEntry(original: text, result: applyTransformers(text)), at: 0)
+        entries.insert(ClipEntry(original: text), at: 0)
         if entries.count > maxItems { entries.removeLast(entries.count - maxItems) }
         save()
     }
@@ -58,7 +54,6 @@ final class History {
             var seen = Set<String>()
             for var entry in try JSONDecoder().decode([ClipEntry].self, from: data) {
                 entry.original = entry.original.trimmingCharacters(in: .whitespacesAndNewlines)
-                entry.result = applyTransformers(entry.original)  // pick up transforms added since it was saved
                 guard !entry.original.isEmpty, seen.insert(entry.original).inserted else { continue }
                 entries.append(entry)
             }

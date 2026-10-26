@@ -42,5 +42,12 @@ final class ClipboardMonitor {
         guard let text = pasteboard.string(forType: .string),
               !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         onCopy(text)
+
+        // A transform adds its result as a second, newer entry and puts it on the clipboard.
+        // Only real copies get here, so picking an old "4127*123" from the menu re-copies the sum as is.
+        if let result = applyTransformers(text.trimmingCharacters(in: .whitespacesAndNewlines)) {
+            write(result)
+            onCopy(result)
+        }
     }
 }
