@@ -3,8 +3,13 @@ import Foundation
 /// Evaluates a copied sum such as "4127*123" -> "507,621".
 /// Supports + - * / × ÷ ^, parentheses, decimals and a trailing "=".
 /// Text that is anything other than a calculation is left alone.
-struct MathTransformer: Transformer {
-    func transform(_ text: String) async -> String? {
+final class MathTransformer: Transformer {
+    override class var title: String { "Math" }
+    override class var summary: String {
+        "Copy a sum like 4127*123 and get 507,621. Supports + − × ÷ ^ and brackets; dates and phone numbers are left alone."
+    }
+
+    override func transform(_ text: String) async -> String? {
         var expr = text.trimmingCharacters(in: .whitespaces)
         if expr.hasSuffix("=") { expr.removeLast() }
         guard expr.count <= 200, looksLikeMath(expr) else { return nil }

@@ -10,8 +10,10 @@ MainActor.assumeIsolated {
     let hotKey = GlobalHotKey { menu.open() }
     let settings = SettingsWindow(hotKey: hotKey, history: history)
     menu.onSettings = { settings.show() }
+    _ = TransformerRegistry.shared  // discover and log transformers at launch
     monitor.start()
     hotKey.register()
+    if CommandLine.arguments.contains("--settings") { settings.show() }
 
     withExtendedLifetime((menu, hotKey, settings)) { app.run() }
 }

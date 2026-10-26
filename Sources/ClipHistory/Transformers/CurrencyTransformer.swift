@@ -3,14 +3,19 @@ import Foundation
 /// Converts "1.23 GBP in USD" -> "1.64 USD", using the day's European Central Bank
 /// rates from frankfurter.dev (free, no key, ~30 major currencies).
 /// Also accepts "to"/"as"/"into"/"=", lowercase codes and £ $ € ¥: "£1.23 to usd", "€50 in GBP".
-struct CurrencyTransformer: Transformer {
+final class CurrencyTransformer: Transformer {
+    override class var title: String { "Currency conversion" }
+    override class var summary: String {
+        "Copy 1.23 GBP in USD (or £50 to eur) and get the converted amount, at today's European Central Bank rate."
+    }
+
     private static let pattern = try! NSRegularExpression(
         pattern: #"^([£$€¥])?\s*(\d[\d,]*(?:\.\d+)?|\.\d+)\s*([A-Za-z]{3})?\s+(?:in|to|as|into|=)\s+([£$€¥]|[A-Za-z]{3})\s*\??$"#,
         options: [.caseInsensitive])
 
     private static let symbols: [String: String] = ["£": "GBP", "$": "USD", "€": "EUR", "¥": "JPY"]
 
-    func transform(_ text: String) async -> String? {
+    override func transform(_ text: String) async -> String? {
         let range = NSRange(text.startIndex..., in: text)
         guard let m = Self.pattern.firstMatch(in: text, range: range) else { return nil }
         func group(_ i: Int) -> String? { Range(m.range(at: i), in: text).map { String(text[$0]) } }

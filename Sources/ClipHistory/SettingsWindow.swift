@@ -86,9 +86,98 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
         stack.alignment = .leading
         stack.spacing = 12
         stack.edgeInsets = NSEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
-        w.contentView = stack
+
+        let pane = makeTransformerPane()
+        let divider = NSBox()
+        divider.boxType = .separator
+        let content = NSStackView(views: [stack, divider, pane])
+        content.orientation = .horizontal
+        content.alignment = .top
+        content.spacing = 0
+        pane.heightAnchor.constraint(equalTo: stack.heightAnchor).isActive = true
+        divider.heightAnchor.constraint(equalTo: stack.heightAnchor, constant: -40).isActive = true
+        divider.centerYAnchor.constraint(equalTo: stack.centerYAnchor).isActive = true
+        w.contentView = content
         w.center()
         return w
+    }
+
+    /// Right-hand pane: every transformer, alphabetical, each with an on/off checkbox.
+    private func makeTransformerPane() -> NSView {
+        let header = NSTextField(labelWithString: "Transformers")
+        header.font = .boldSystemFont(ofSize: NSFont.systemFontSize)
+        let intro = NSTextField(wrappingLabelWithString: "Applied to each copy. A result goes on top of the copy and onto the clipboard.")
+        intro.textColor = .secondaryLabelColor
+        intro.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+        intro.preferredMaxLayoutWidth = 280
+
+        let registry = TransformerRegistry.shared
+        let list = NSStackView()
+        list.orientation = .vertical
+        list.alignment = .leading
+        list.spacing = 14
+        for t in registry.all {
+            let check = NSButton(checkboxWithTitle: type(of: t).title, target: self, action: #selector(transformerToggled(_:)))
+            check.state = registry.isEnabled(t) ? .on : .off
+            check.identifier = NSUserInterfaceItemIdentifier(TransformerRegistry.id(t))
+            let summary = NSTextField(wrappingLabelWithString: type(of: t).summary)
+            summary.textColor = .secondaryLabelColor
+            summary.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+            summary.maximumNumberOfLines = 2
+            summary.lineBreakMode = .byWordWrapping
+            summary.cell?.truncatesLastVisibleLine = true
+            summary.preferredMaxLayoutWidth = 258
+            summary.toolTip = type(of: t).summary
+            let indented = NSStackView(views: [summary])
+            indented.edgeInsets = NSEdgeInsets(top: 0, left: 20, bottom: 0, right: 0)
+            let row = NSStackView(views: [check, indented])
+            row.orientation = .vertical
+            row.alignment = .leading
+            row.spacing = 2
+            list.addArrangedSubview(row)
+        }
+        if registry.all.isEmpty {
+            list.addArrangedSubview(NSTextField(labelWithString: "No transformers in this build."))
+        }
+
+        // Scrolls once there are more transformers than fit.
+        let doc = FlippedView()
+        doc.translatesAutoresizingMaskIntoConstraints = false
+        list.translatesAutoresizingMaskIntoConstraints = false
+        doc.addSubview(list)
+        NSLayoutConstraint.activate([
+            list.topAnchor.constraint(equalTo: doc.topAnchor),
+            list.leadingAnchor.constraint(equalTo: doc.leadingAnchor),
+            list.trailingAnchor.constraint(equalTo: doc.trailingAnchor),
+            list.bottomAnchor.constraint(equalTo: doc.bottomAnchor),
+        ])
+        let scroll = NSScrollView()
+        scroll.hasVerticalScroller = true
+        scroll.autohidesScrollers = true
+        scroll.drawsBackground = false
+        scroll.documentView = doc
+        NSLayoutConstraint.activate([
+            doc.topAnchor.constraint(equalTo: scroll.contentView.topAnchor),
+            doc.leadingAnchor.constraint(equalTo: scroll.contentView.leadingAnchor),
+            doc.widthAnchor.constraint(equalTo: scroll.contentView.widthAnchor),
+            scroll.widthAnchor.constraint(equalToConstant: 290),
+        ])
+
+        scroll.setContentHuggingPriority(.init(1), for: .vertical)  // the list takes the spare height
+        let pane = NSStackView(views: [header, intro, scroll])
+        pane.distribution = .fill
+        pane.orientation = .vertical
+        pane.alignment = .leading
+        pane.spacing = 8
+        pane.edgeInsets = NSEdgeInsets(top: 20, left: 20, bottom: 20, right: 20)
+        return pane
+    }
+
+    @objc private func transformerToggled(_ sender: NSButton) {
+        let registry = TransformerRegistry.shared
+        guard let t = registry.all.first(where: { TransformerRegistry.id($0) == sender.identifier?.rawValue }) else { return }
+        registry.setEnabled(t, sender.state == .on)
+        NSLog("ClipHistory: transformer \(type(of: t).title) \(sender.state == .on ? "on" : "off")")
     }
 
     private static func separator() -> NSBox {
@@ -207,4 +296,8 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
         if let name = specialKeys[Int(event.keyCode)] { return name }
         return event.charactersIgnoringModifiers?.uppercased() ?? "?"
     }
+}
+
+private final class FlippedView: NSView {
+    override var isFlipped: Bool { true }  // so the list starts at the top of the scroll view
 }

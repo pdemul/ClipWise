@@ -28,18 +28,20 @@ All transforms live in [`Sources/ClipHistory/Transformers/`](Sources/ClipHistory
 
 ### Adding a transform
 
-1. Add a file to `Sources/ClipHistory/Transformers/` with a type that implements `Transformer`:
+Add a file to `Sources/ClipHistory/Transformers/` with a subclass of `Transformer`, then `./build.sh` and restart the app. That's all: every subclass is found at launch and listed under **Transformers** in Settings, where it can be switched off.
 
-   ```swift
-   struct ShoutTransformer: Transformer {
-       func transform(_ text: String) async -> String? {
-           text.hasPrefix("shout ") ? text.dropFirst(6).uppercased() : nil
-       }
-   }
-   ```
+```swift
+final class ShoutTransformer: Transformer {
+    override class var title: String { "Shout" }
+    override class var summary: String { "Copy \"shout hello\" and get HELLO." }
 
-   Return the new text, or `nil` when the copy isn't for you. Be strict about what you match: every copy goes through every transform.
-2. Add an instance to the `transformers` list in `Transformer.swift`. Order matters: the first one to return a result wins.
-3. `./build.sh`, then restart the app.
+    override func transform(_ text: String) async -> String? {
+        text.hasPrefix("shout ") ? text.dropFirst(6).uppercased() : nil
+    }
+}
+```
 
-`transform` is async, so a transform can look something up online. If you copy something else before it finishes, its result is dropped rather than overwriting your new copy.
+- Return the new text, or `nil` when the copy isn't for you.
+- Keep `summary` to about two short lines; that's what Settings shows.
+- Be strict about what you match. Every copy goes through every transform that's switched on, in alphabetical order by title, and the first result wins.
+- `transform` is async, so it can look something up online. If you copy something else before it finishes, its result is dropped rather than overwriting your new copy.
