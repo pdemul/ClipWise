@@ -4,7 +4,7 @@ import Foundation
 /// Supports + - * / × ÷ ^, parentheses, decimals and a trailing "=".
 /// Text that is anything other than a calculation is left alone.
 struct MathTransformer: Transformer {
-    func transform(_ text: String) -> String? {
+    func transform(_ text: String) async -> String? {
         var expr = text.trimmingCharacters(in: .whitespaces)
         if expr.hasSuffix("=") { expr.removeLast() }
         guard expr.count <= 200, looksLikeMath(expr) else { return nil }

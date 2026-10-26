@@ -45,7 +45,14 @@ final class ClipboardMonitor {
 
         // A transform adds its result as a second, newer entry and puts it on the clipboard.
         // Only real copies get here, so picking an old "4127*123" from the menu re-copies the sum as is.
-        if let result = applyTransformers(text.trimmingCharacters(in: .whitespacesAndNewlines)) {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        Task {
+            guard let result = await applyTransformers(trimmed) else { return }
+            // A lookup can take a moment; never overwrite something copied in the meantime.
+            guard pasteboard.changeCount == count else {
+                NSLog("ClipHistory: dropped transform result for \"\(trimmed.prefix(40))\", clipboard changed meanwhile")
+                return
+            }
             write(result)
             onCopy(result)
         }
