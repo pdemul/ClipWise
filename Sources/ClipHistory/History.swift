@@ -58,6 +58,7 @@ final class History {
             var seen = Set<String>()
             for var entry in try JSONDecoder().decode([ClipEntry].self, from: data) {
                 entry.original = entry.original.trimmingCharacters(in: .whitespacesAndNewlines)
+                entry.result = applyTransformers(entry.original)  // pick up transforms added since it was saved
                 guard !entry.original.isEmpty, seen.insert(entry.original).inserted else { continue }
                 entries.append(entry)
             }

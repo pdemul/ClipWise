@@ -17,6 +17,10 @@ open ~/Applications/ClipHistory.app
 
 To start it at login, tick **Open at login** in Settings….
 
-## Transforms (future)
+## Transforms
 
-`Sources/ClipHistory/Transformer.swift` has a `Transformer` protocol and an empty `transformers` list. A transform returns a replacement string (e.g. `4127*123` → `507,621`) or nil. The menu shows the result and copies it back; the original text is in the tooltip.
+When a copy matches a transform, the menu shows the result and copies that back; the original text is in the tooltip.
+
+- **Math** (`MathTransformer.swift`): `4127*123` → `507,621`. Supports `+ - * / × ÷ ^`, parentheses, decimals and a trailing `=`. Sums that only use `-` or `/` need a space or bracket (`10 / 4`), so dates like `2026-10-26` and `10/26` and phone numbers are left alone.
+
+To add one, implement `Transformer` (return the replacement string, or nil) and add it to `transformers` in `Transformer.swift`.

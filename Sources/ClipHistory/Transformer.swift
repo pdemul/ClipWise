@@ -7,8 +7,7 @@ protocol Transformer {
 }
 
 /// Registered transforms, tried in order; the first non-nil result wins.
-/// Empty in v1.
-let transformers: [Transformer] = []
+let transformers: [Transformer] = [MathTransformer()]
 
 func applyTransformers(_ text: String) -> String? {
     for t in transformers {
