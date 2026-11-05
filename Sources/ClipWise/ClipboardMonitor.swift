@@ -39,6 +39,15 @@ final class ClipboardMonitor {
         lastChangeCount = count
 
         if let types = pasteboard.types, !Self.skipTypes.isDisjoint(with: types) { return }
+
+        // A copied file's text flavour is only its name, so record the path instead. One entry per file,
+        // first selected on top. Paths never go through the transformers.
+        let files = pasteboard.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL] ?? []
+        if !files.isEmpty {
+            for file in files.reversed() { onCopy(file.path) }
+            return
+        }
+
         guard let text = pasteboard.string(forType: .string),
               !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
         onCopy(text)

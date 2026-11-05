@@ -1,6 +1,6 @@
 # ClipWise
 
-A tiny macOS menubar app that keeps your recent text copies (20 by default). Press ⌃⌥V from any app, or click the menubar icon, to open the history; click an entry or press ⌘1–⌘9 to put it back on the clipboard. Copy a sum or a currency amount (`4127*123`, `100 Swedish to GBP=`) and the answer is added on top, ready to paste.
+A tiny macOS menubar app that keeps your recent text and file copies (20 by default). Press ⌃⌥V from any app, or click the menubar icon, to open the history; click an entry or press ⌘1–⌘9 to put it back on the clipboard. Copy a sum or a currency amount (`4127*123`, `100 Swedish to GBP=`) and the answer is added on top, ready to paste. Copy an audio file and you can play it right there in a small floating player.
 
 ## Install
 
@@ -14,9 +14,19 @@ A clipboard icon appears in the menubar. To start it at login, tick **Open at lo
 
 - Newest first. Copying the same text again moves it to the top.
 - Leading and trailing spaces and newlines are trimmed.
+- Copying a file records its full path, one entry per file.
 - Skips items that password managers mark as concealed or transient.
 - History is kept in `~/Library/Application Support/ClipWise/history.json`.
 - **Settings…** (in the menu) changes the shortcut, how many copies are kept (5–200), and whether it opens at login.
+
+## Audio files
+
+MP3 and AAC (`.mp3`, `.aac`, `.m4a`) are supported, along with anything else macOS can decode, such as WAV, AIFF and FLAC.
+
+- Click an audio file in the menu, or press its ⌘1–⌘9, to put its path back on the clipboard and open its mini player.
+- Turn on **Autoplay audio files** in the menu to open a player and start playing as soon as you copy an audio file. Off by default. When it's off, a player opened from the menu starts paused.
+- Each file gets one player; asking again brings it to the front. Several can be open, but only one plays: starting one pauses the others.
+- A player has play/pause, ±15 seconds, a position slider, volume, playback speed and share. Closing it stops playback.
 
 ## Build
 
